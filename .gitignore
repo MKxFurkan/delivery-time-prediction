@@ -11,7 +11,7 @@ venv/
 *.pkl
 *.joblib
 
-# Environment variables
+# Environment variablesa
 .env
 
 # OS files
