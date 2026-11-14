@@ -7,13 +7,10 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 
-# Model files
-*.pkl
-*.joblib
-
-# Environment variablesa
+# Environment variables
 .env
 
 # OS files
 .DS_Store
 Thumbs.db
+data/raw/*.csv
