@@ -145,7 +145,7 @@ div[data-baseweb="popover"] li:hover, div[data-baseweb="popover"] li[aria-select
 /* Model menu: dropdown panel */
 [data-testid="stPopoverBody"] {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 1.1rem 1.25rem; min-width: min(380px, 92vw);
+    padding: 1.1rem 1.25rem; min-width: min(560px, 92vw);
 }
 .menu-title {
     font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
@@ -167,6 +167,23 @@ div[data-baseweb="popover"] li:hover, div[data-baseweb="popover"] li[aria-select
     font-family: var(--mono); font-size: 0.78rem; color: var(--accent-light);
     border: 1px solid var(--border); border-radius: 999px;
 }
+.menu-title-spaced { margin-top: 1.4rem; margin-bottom: 0.7rem; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 0.65rem; }
+.metric-card {
+    padding: 0.95rem 1rem; background: var(--field);
+    border: 1px solid var(--border); border-radius: 12px;
+}
+.metric-name {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 0.4rem;
+}
+.metric-value {
+    font-size: 1.85rem; font-weight: 300; letter-spacing: -0.02em; line-height: 1.1; color: var(--text);
+}
+.metric-unit { font-size: 0.85rem; font-weight: 400; letter-spacing: 0; margin-left: 0.35rem; color: var(--muted); }
+.metric-desc { font-size: 0.78rem; line-height: 1.45; color: var(--muted); margin-top: 0.55rem; }
+.metric-extra { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); margin-top: 0.7rem; }
+.metric-extra strong { color: var(--muted); font-weight: 500; }
 .menu-note {
     display: flex; gap: 0.7rem; align-items: flex-start; margin-top: 0.9rem;
     font-size: 0.82rem; line-height: 1.5; color: var(--muted);
@@ -264,8 +281,6 @@ ICON_PATHS = {
             '<line x1="12" y1="8" x2="12.01" y2="8"/>',
 }
 
-METRIC_NAMES = ["MAE", "RMSE", "R²"]
-
 MODEL_INFO = [
     ("model", "Model", "XGBoost Regressor"),
     ("type", "Prediction type", "Regression"),
@@ -273,8 +288,15 @@ MODEL_INFO = [
     ("features", "Input features", "7"),
     ("train", "Training data", "80%"),
     ("test", "Testing data", "20%"),
-    ("metrics", "Evaluation metrics", "".join(f'<span class="chip">{m}</span>' for m in METRIC_NAMES)),
 ]
+
+# Test-set evaluation results (fixed values supplied from the trained model's evaluation).
+METRICS = [
+    ("MAE", "6.58", "min", "Average size of the error between predicted and actual delivery times."),
+    ("RMSE", "9.44", "min", "Like MAE, but larger errors count more, so it flags big misses."),
+    ("R² Score", "0.8011", "80.11%", "Share of the variation in delivery times the model explains."),
+]
+MSE_VALUE = "89.15"
 
 DISCLAIMER = (
     "Predictions are estimates based on historical delivery data. "
@@ -295,8 +317,19 @@ def model_menu_html() -> str:
         f'<div class="menu-label">{label}</div><div class="menu-value">{value}</div></div>'
         for key, label, value in MODEL_INFO
     )
+    cards = "".join(
+        f'<div class="metric-card"><div class="metric-name">{name}</div>'
+        f'<div class="metric-value">{value}<span class="metric-unit">{unit}</span></div>'
+        f'<div class="metric-desc">{desc}</div></div>'
+        for name, value, unit, desc in METRICS
+    )
+    metrics = (
+        '<div class="menu-title menu-title-spaced">Test-set performance</div>'
+        f'<div class="metric-grid">{cards}</div>'
+        f'<div class="metric-extra">MSE <strong>{MSE_VALUE}</strong></div>'
+    )
     note = f'<div class="menu-note">{icon_svg("info", 16)}<span>{DISCLAIMER}</span></div>'
-    return f'<div class="menu-title">About the model</div>{rows}{note}'
+    return f'<div class="menu-title">About the model</div>{rows}{metrics}{note}'
 
 
 def render_model_menu() -> None:
